@@ -1,6 +1,9 @@
+
+#Import libraries and modules
 import sys
 import math
 import numpy as np
+import enum
 
 import pygame
 from pygame.locals import *
@@ -10,6 +13,7 @@ import pymunk
 from pymunk.vec2d import Vec2d
 from pymunk.pygame_util import DrawOptions
 
+#Macro initial values
 WIDTH = 800
 HEIGHT = 1000
 FPS = 60.0
@@ -21,25 +25,37 @@ UNIT_R = 20
 
 DRAW_START = UNIT_R+10
 DRAW_STOP = 120
+COLL_THRESH = 0
 
-
+#Start pygame
 pygame.init()
 flags = pygame.DOUBLEBUF
 display = pygame.display.set_mode((WIDTH, HEIGHT), flags)
 display.set_alpha(None)
 clock = pygame.time.Clock()
 
+#For testing -> enum class for action
+class Action(enum.IntEnum):
+    UP = 1
+    DOWN = 2
+    LEFT = 4
+    RIGHT = 3
+
+# Class Environment
 class Env:
     def __init__(self):
+        #Sensor hyperparameters
         self.n_of_sensors = 4
         self.sensor_offset = math.pi/4
 
+        #Start pymunk
         self.space = pymunk.Space()
         self.space.gravity = (0.0,0.0)
 
         self.create_unit(UNIT_X, UNIT_Y, UNIT_R)
         self.create_enemy(WIDTH/2, HEIGHT/4, 30)
 
+        #Green borders
         self.borders = []
         self.borders.append(pymunk.Segment(
             self.space.static_body, (0,0), (0,HEIGHT), 3))
@@ -57,6 +73,8 @@ class Env:
             border.color = THECOLORS['green2']
         self.space.add(self.borders)
 
+        # TO DO -> create some obstacles
+
 
     def create_unit(self, x, y, r):
         self.unit_speed = 0
@@ -66,14 +84,31 @@ class Env:
         self.unit_body.position = x, y
         self.unit_shape = pymunk.Circle(self.unit_body, r)
         self.unit_shape.elasticity = 1.0
-        self.unit_shape.color = THECOLORS['red2']
-        self.unit_shape.angle = math.pi / 4
+        self.unit_shape.color = THECOLORS['orangered1']
+        self.unit_body.angle = 0
         self.unit_direction = Vec2d(1,0).rotated(self.unit_body.angle)
         self.space.add(self.unit_body, self.unit_shape)
 
-    def move_unit(self):
-        self.unit_speed = 20
-        self.unit_body.velocity = self.unit_direction * self.unit_speed
+    def move_unit(self, speed=None, angle=None):
+        if not speed:
+            if not angle:
+                self.unit_speed = 30
+                self.unit_body.velocity = self.unit_direction * self.unit_speed
+            else:
+                self.unit_speed = 30
+                self.unit_body.angle -= angle
+                self.unit_direction = Vec2d(1, 0).rotated(self.unit_body.angle)
+                self.unit_body.velocity = self.unit_direction * self.unit_speed
+        else:
+            if not angle:
+                self.unit_speed = speed
+                self.unit_body.velocity = self.unit_direction * self.unit_speed
+            else:
+                self.unit_speed = speed
+                self.unit_body.angle -= angle
+                self.unit_direction = Vec2d(1, 0).rotated(self.unit_body.angle)
+                self.unit_body.velocity = self.unit_direction * self.unit_speed
+
 
     def create_enemy(self, x, y, r):
         self.enemy_speed = 0
@@ -96,6 +131,8 @@ class Env:
 
     def get_sensor_data(self):
 
+        # One of main function -> detection system
+        # Credits to Mateusz Jakubiec
         data = []
         sensor_angle = 2 * math.pi / self.n_of_sensors
         player_x, player_y = self.unit_body.position
@@ -103,7 +140,7 @@ class Env:
 
         for n in range(self.n_of_sensors):
 
-            sangle = math.fmod(self.unit_shape.angle + n * sensor_angle, 2 * math.pi)
+            sangle = math.fmod(-self.unit_body.angle + n * sensor_angle + self.sensor_offset, 2 * math.pi)
             dx = math.sin(sangle)
             dy = math.cos(sangle)
 
@@ -133,29 +170,101 @@ class Env:
                     pygame.draw.line(display, 0, (int(draw_x), int(draw_y)), (int(x), int(y)), 1)
                     data.append(math.ceil(math.sqrt((draw_x - x) ** 2 + (draw_y - y) ** 2)))
                     break
-        print(data)
+        return data
 
-    def screen_snap(self):
+    def is_collision(self):
+        for _ in range(10):
+                draw_options = DrawOptions(display)
+                self.move_unit(speed = -40, angle=-0.06)
+                display.fill(THECOLORS['red'])
+                self.space.debug_draw(draw_options)
+                self.space.step(1 / FPS)
+
+                pygame.display.flip()
+                clock.tick()
+
+    #Helper function -> mostly if something is wrong with detection
+    def controller(self, event):
+        if event.type == KEYDOWN:
+            if event.key == K_w:
+                #print("W")
+                self.move_unit()
+            if event.key == K_s:
+                #print("S")
+                self.move_unit(speed=-30)
+            if event.key == K_d:
+                #print("D")
+                self.move_unit(angle=0.02)
+            if event.key == K_a:
+                #print("A")
+                self.move_unit(angle=-0.02)
+
+
+    def unit_random_move(self, action):
+        if action == 1:             # UP
+            # print("W")
+            self.move_unit()
+        if action == 2:             #DOWN
+            # print("S")
+            self.move_unit(speed=-30)
+        if action == 3:             # RIGHT
+            # print("D")
+            self.move_unit(angle=0.02)
+        if action == 4:             # LEFT
+            # print("A")
+            self.move_unit(angle=-0.02)
+
+        return action
+
+    #Reward function with action penalty
+    def reward_func(self, data, action):
+        if COLL_THRESH in data:
+            reward = -700
+            self.is_collision()
+        else:
+            if action == 1:
+                reward = -250 + int(np.sum(data)/2)
+            if action == 2:
+                reward = -250 + int(np.sum(data)/20)
+            if action == 3 or action == 4:
+                reward = -250 + int(np.sum(data)/8)
+
+        return reward
+
+    #MAIN FUNCTION
+    def screen_snap(self, action):
         draw_options = DrawOptions(display)
-        while True:
-            for event in pygame.event.get():
+
+        display.fill((255, 255, 255))
+        for event in pygame.event.get():
                 if event.type == QUIT:
                     sys.exit(0)
                 elif event.type == KEYDOWN and event.key == K_ESCAPE:
                     sys.exit(0)
+                #else:
+                #   self.controller(event)   -> only works here(pygame.event.get() function works once for iteration)
 
-            display.fill((255,255,255))
 
-            self.move_unit()
-            self.move_enemy()
-            self.get_sensor_data()
+        self.unit_random_move(action)
+        self.move_enemy()
 
-            self.space.debug_draw(draw_options)
-            self.space.step(1/FPS)
+        data = self.get_sensor_data()
+        state = np.array(data)
 
-            pygame.display.flip()
-            clock.tick(FPS)
+        #print(state)                      # -> testing area for sensors detection
+        reward = self.reward_func(state, action)
+        #print(reward == -700)
+
+        self.space.debug_draw(draw_options)
+        self.space.step(1/FPS)
+
+        pygame.display.flip()
+        clock.tick(FPS)
+
+        return reward, state
 
 if __name__ == "__main__":
     env = Env()
-    sys.exit(env.screen_snap())
+    while True:
+        action = np.random.randint(1,5)
+        reward, state = env.screen_snap(action)
