@@ -13,10 +13,15 @@ from pymunk.pygame_util import DrawOptions
 WIDTH = 800
 HEIGHT = 1000
 FPS = 60.0
+BG_COLOR = (255,255,255)
 
 UNIT_X = WIDTH/4
 UNIT_Y = HEIGHT/1.5
 UNIT_R = 20
+
+DRAW_START = UNIT_R+10
+DRAW_STOP = 120
+
 
 pygame.init()
 flags = pygame.DOUBLEBUF
@@ -26,6 +31,9 @@ clock = pygame.time.Clock()
 
 class Env:
     def __init__(self):
+        self.n_of_sensors = 4
+        self.sensor_offset = math.pi/4
+
         self.space = pymunk.Space()
         self.space.gravity = (0.0,0.0)
 
@@ -66,7 +74,6 @@ class Env:
     def move_unit(self):
         self.unit_speed = 20
         self.unit_body.velocity = self.unit_direction * self.unit_speed
-        print(self.unit_speed)
 
     def create_enemy(self, x, y, r):
         self.enemy_speed = 0
@@ -87,6 +94,47 @@ class Env:
         self.enemy_direction = Vec2d(1,0).rotated(self.enemy_body.angle)
         self.enemy_body.velocity = self.enemy_speed * self.enemy_direction
 
+    def get_sensor_data(self):
+
+        data = []
+        sensor_angle = 2 * math.pi / self.n_of_sensors
+        player_x, player_y = self.unit_body.position
+        draw_x, draw_y = 0,0
+
+        for n in range(self.n_of_sensors):
+
+            sangle = math.fmod(self.unit_shape.angle + n * sensor_angle, 2 * math.pi)
+            dx = math.sin(sangle)
+            dy = math.cos(sangle)
+
+            for i in range(DRAW_START,DRAW_STOP):
+                x = player_x + dx * i
+                y = HEIGHT - (player_y + dy * i)
+
+                if i == DRAW_START:
+                    draw_x = x
+                    draw_y = y
+
+                if x >= WIDTH-2 or y >= HEIGHT-2 or x < 2 or y < 2:
+                    pygame.draw.line(display, 0, (int(draw_x), int(draw_y)), (int(x), int(y)), 1)
+                    data.append(math.ceil(math.sqrt((draw_x - x) ** 2 + (draw_y - y) ** 2)))
+                    break
+
+                color = display.get_at((int(x), int(y)))
+
+                if (i == DRAW_STOP-1):
+                    pygame.draw.line(display, 0, (int(draw_x), int(draw_y)), (int(x), int(y)), 1)
+                    data.append(math.ceil(math.sqrt((draw_x - x) ** 2 + (draw_y- y) ** 2)))
+
+                if color == BG_COLOR:
+                    continue
+
+                else:
+                    pygame.draw.line(display, 0, (int(draw_x), int(draw_y)), (int(x), int(y)), 1)
+                    data.append(math.ceil(math.sqrt((draw_x - x) ** 2 + (draw_y - y) ** 2)))
+                    break
+        print(data)
+
     def screen_snap(self):
         draw_options = DrawOptions(display)
         while True:
@@ -100,6 +148,7 @@ class Env:
 
             self.move_unit()
             self.move_enemy()
+            self.get_sensor_data()
 
             self.space.debug_draw(draw_options)
             self.space.step(1/FPS)
