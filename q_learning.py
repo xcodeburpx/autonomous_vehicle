@@ -15,6 +15,8 @@ NUM_INPUT = 4
 
 """Credits to  Matt Harvey (harvitronix)"""
 
+# TO DO -> create class 'Q-learining' and 'TD(lambda)-learning'
+
 def q_learning(model, name):
 
     model_name = name
