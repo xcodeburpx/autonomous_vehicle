@@ -36,10 +36,10 @@ clock = pygame.time.Clock()
 
 #For testing -> enum class for action
 class Action(enum.IntEnum):
-    UP = 1
-    DOWN = 2
-    LEFT = 4
-    RIGHT = 3
+    UP = 0
+    DOWN = 1
+    LEFT = 3
+    RIGHT = 2
 
 # Class Environment
 class Env:
@@ -76,6 +76,7 @@ class Env:
         # TO DO -> create some obstacles
 
 
+
     def create_unit(self, x, y, r):
         self.unit_speed = 0
         self.unit_mass = 1
@@ -92,10 +93,10 @@ class Env:
     def move_unit(self, speed=None, angle=None):
         if not speed:
             if not angle:
-                self.unit_speed = 30
+                self.unit_speed = 70
                 self.unit_body.velocity = self.unit_direction * self.unit_speed
             else:
-                self.unit_speed = 30
+                self.unit_speed = 70
                 self.unit_body.angle -= angle
                 self.unit_direction = Vec2d(1, 0).rotated(self.unit_body.angle)
                 self.unit_body.velocity = self.unit_direction * self.unit_speed
@@ -201,16 +202,16 @@ class Env:
 
 
     def unit_random_move(self, action):
-        if action == 1:             # UP
+        if action == 0:             # UP
             # print("W")
             self.move_unit()
-        if action == 2:             #DOWN
+        if action == 1:             #DOWN
             # print("S")
-            self.move_unit(speed=-30)
-        if action == 3:             # RIGHT
+            self.move_unit(speed=-50)
+        if action == 2:             # RIGHT
             # print("D")
             self.move_unit(angle=0.02)
-        if action == 4:             # LEFT
+        if action == 3:             # LEFT
             # print("A")
             self.move_unit(angle=-0.02)
 
@@ -222,11 +223,11 @@ class Env:
             reward = -700
             self.is_collision()
         else:
-            if action == 1:
+            if action == 0:
                 reward = -250 + int(np.sum(data)/2)
-            if action == 2:
+            if action == 1:
                 reward = -250 + int(np.sum(data)/20)
-            if action == 3 or action == 4:
+            if action == 2 or action == 3:
                 reward = -250 + int(np.sum(data)/8)
 
         return reward
@@ -266,5 +267,5 @@ class Env:
 if __name__ == "__main__":
     env = Env()
     while True:
-        action = np.random.randint(1,5)
+        action = np.random.randint(0,4)
         reward, state = env.screen_snap(action)
