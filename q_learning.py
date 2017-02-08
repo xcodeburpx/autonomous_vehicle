@@ -151,7 +151,7 @@ def update_func(minibatch, model):
         y = np.zeros((1, 4))
         y[:] = old_qval[:]
         # Check for terminal state.
-        if reward_m != -500:  # non-terminal state
+        if reward_m != -700:  # non-terminal state
             update = (reward_m + (GAMMA * maxQ))
         else:  # terminal state
             update = reward_m
