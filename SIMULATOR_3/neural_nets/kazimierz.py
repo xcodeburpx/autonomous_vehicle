@@ -15,13 +15,16 @@ def Kazimierz():
 	
     model = Sequential()
 
-    model.add(Dense(128, init='uniform', activation='tanh', input_shape=(data_dim,)))
+    model.add(Dense(256, init='lecun_uniform', activation='relu', input_shape=(data_dim,)))
     model.add(ActivityRegularization(l1=0.05, l2=0.15))
-    model.add(Dropout(0.2))
-    model.add(Dense(32, init='normal', activation='tanh'))
+    model.add(Dropout(0.4))
+    model.add(Dense(64, init='normal', activation='relu'))
+    model.add(Dropout(0.4))
+    model.add(ActivityRegularization(l1=0.05, l2=0.15))
+    model.add(Dense(16, activation='relu'))
     model.add(Dropout(0.2))
     model.add(ActivityRegularization(l1=0.05, l2=0.15))
-    model.add(Dense(nb_classes, activation='sigmoid'))
+    model.add(Dense(nb_classes, activation='linear'))
 
     model.compile(loss='mse', optimizer='rmsprop', metrics=['accuracy'])
 
@@ -51,3 +54,4 @@ def test():
     print("FINISHED!!")
 
 
+#test()

@@ -30,7 +30,6 @@ def q_learning(model, name):
     #Used to create a car distance plot
     max_car_distance = 0
     car_distance = 0
-    t = 0
     data_collect = []
 
     #Replay memory and loss log lists
@@ -63,7 +62,7 @@ def q_learning(model, name):
 
         # Reward and new state
         reward, new_state = world.screen_snap(action)
-        print(new_state)
+        #print(new_state)
 
         # Storing the (S,A,R,S') tuple in replay memory
         replay_mem.append((state, action, reward, new_state))
@@ -98,7 +97,7 @@ def q_learning(model, name):
 
         #Info window
         if reward == -700:
-            data_collect.append([t, car_distance])
+            data_collect.append([counter, car_distance])
 
             # Update max.
             if car_distance > max_car_distance:
@@ -122,7 +121,7 @@ def q_learning(model, name):
                                str(counter) + ".h5")
             model.save("saved_models/" + model_name +
                        str(counter) + ".model")
-            print("Saving model %s - %d" %(model_name, t))
+            print("Saving model %s - %d" %(model_name, counter))
 
     log_results(model_name, data_collect, loss_log)
 

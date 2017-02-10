@@ -24,8 +24,9 @@ UNIT_Y = HEIGHT/1.5
 UNIT_R = 20
 
 DRAW_START = UNIT_R+10
-DRAW_STOP = 120
+DRAW_STOP = 130
 COLL_THRESH = 0
+BASE_REWARD = -240
 
 flags = pygame.DOUBLEBUF
 #Start pygame
@@ -78,6 +79,10 @@ class Env:
         self.obstacles.append(self.create_circle(600, 300, 30))
         self.obstacles.append(self.create_circle(800, 800, 80))
         self.obstacles.append(self.create_circle(200, 400, 80))
+        self.obstacles.append(self.create_circle(150, 800, 60))
+        self.obstacles.append(self.create_circle(250, 200,60))
+        self.obstacles.append(self.create_circle(650, 500, 50))
+
         self.create_enemy(WIDTH / 2, HEIGHT / 4, 30)
 
         self.create_unit(UNIT_X, UNIT_Y, UNIT_R)
@@ -93,15 +98,16 @@ class Env:
         self.unit_shape.elasticity = 1.0
         self.unit_body.angle = -math.pi/8
         self.unit_direction = Vec2d(1,0).rotated(self.unit_body.angle)
+        self.unit_body.apply_impulse_at_local_point(self.unit_direction)
         self.space.add(self.unit_body, self.unit_shape)
 
     def move_unit(self, speed=None, angle=None):
         if not speed:
             if not angle:
-                self.unit_speed = 70
+                self.unit_speed = 100
                 self.unit_body.velocity = self.unit_direction * self.unit_speed
             else:
-                self.unit_speed = 70
+                self.unit_speed = 50
                 self.unit_body.angle -= angle
                 self.unit_direction = Vec2d(1, 0).rotated(self.unit_body.angle)
                 self.unit_body.velocity = self.unit_direction * self.unit_speed
@@ -141,12 +147,12 @@ class Env:
         self.enemy_shape = pymunk.Circle(self.enemy_body, r)
         self.enemy_shape.elasticity = 0.8
         self.enemy_shape.color = THECOLORS['blueviolet']
-        self.enemy_shape.angle = math.pi / 4
+        self.enemy_body.angle = math.pi / 4
         self.enemy_direction = Vec2d(1, 0).rotated(self.enemy_body.angle)
         self.space.add(self.enemy_body, self.enemy_shape)
 
     def move_enemy(self):
-        self.enemy_speed = np.random.randint(50, 100)
+        self.enemy_speed = np.random.randint(50, 200)
         self.enemy_body.angle -= np.random.randint(-1, 2)/2
         self.enemy_direction = Vec2d(1,0).rotated(self.enemy_body.angle)
         self.enemy_body.velocity = self.enemy_speed * self.enemy_direction
@@ -225,19 +231,20 @@ class Env:
 
     def unit_random_move(self, action):
         if action == 0:             # UP
-            # print("W")
+            #print("W", end='\r', flush=True)
             self.move_unit()
         if action == 1:             #DOWN
-            # print("S")
-            self.move_unit(speed=-50)
+            #print("S", end='\r', flush=True)
+            self.move_unit(speed=-20)
         if action == 2:             # RIGHT
-            # print("D")
-            self.move_unit(angle=0.02)
+            #print("D", end='\r', flush=True)
+            self.move_unit(angle=0.2)
         if action == 3:             # LEFT
-            # print("A")
-            self.move_unit(angle=-0.02)
+            #print("A", end='\r', flush=True)
+            self.move_unit(angle=-0.2)
 
         return action
+
 
     #Reward function with action penalty
     def reward_func(self, data, action):
@@ -246,18 +253,17 @@ class Env:
             self.is_collision()
         else:
             if action == 0:
-                reward = -250 + int(np.sum(data)/2)
+                reward = BASE_REWARD + int(np.sum(data))
             if action == 1:
-                reward = -250 + int(np.sum(data)/20)
+                reward = BASE_REWARD + int(np.sum(data))
             if action == 2 or action == 3:
-                reward = -250 + int(np.sum(data)/8)
+                reward = BASE_REWARD + int(np.sum(data))
 
         return reward
 
     #MAIN FUNCTION
-    def screen_snap(self,action):
+    def screen_snap(self, action):
         draw_options = DrawOptions(display)
-
 
         for event in pygame.event.get():
                 if event.type == QUIT:
@@ -277,7 +283,8 @@ class Env:
 
         #print(state)                      # -> testing area for sensors detection
         reward = self.reward_func(state, action)
-        # print(reward == -700)
+        #if(reward == -700):
+        #    print(True)
 
         x, y = self.unit_body.position
         color = display.get_at((int(x), HEIGHT-int(y)))
@@ -288,7 +295,7 @@ class Env:
         display.fill((255, 255, 255))
 
         self.space.debug_draw(draw_options)
-        self.space.step(1/FPS)
+        self.space.step(4/FPS)
 
         pygame.display.update()
         clock.tick(FPS)
