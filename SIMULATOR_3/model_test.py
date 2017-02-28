@@ -15,6 +15,7 @@ def model_test(model):
         distance += 1
 
         state = state.reshape(1,NUM_SENSORS)
+        #print(state)
         qval = model.predict(state,batch_size=1)
         print(qval)
         action = np.argmax(qval)
@@ -28,5 +29,5 @@ def model_test(model):
 
 if __name__ == '__main__':
 
-    model = load_model('saved_models/kazimierz75000.model')
+    model = load_model('saved_models/kazimierz300000.model')
     model_test(model)

@@ -8,8 +8,8 @@ import random
 import csv
 
 #Macros for q-learning
-GAMMA=0.9
-BATCH_SIZE=32
+GAMMA=0.99
+BATCH_SIZE=64
 BUFFER = 30000
 NUM_INPUT = 4
 
@@ -24,7 +24,7 @@ def q_learning(model, name):
     #Initial values for epsilon policy
     eps_delay=1000
     epsilon=1
-    train_frames = 1000000
+    train_frames = 1010000
     counter = 0
 
     #Used to create a car distance plot
@@ -52,7 +52,7 @@ def q_learning(model, name):
         counter += 1
 
         #Epsilon policy
-        if random.random() < epsilon or counter < eps_delay:
+        if np.random.rand() < epsilon or counter < eps_delay:
             action = np.random.randint(0,4)
         else:
             state = state.reshape(1,NUM_INPUT)
@@ -83,8 +83,8 @@ def q_learning(model, name):
             # Train the model on this batch.
             history = LossHistory()
             model.fit(
-                X_train, y_train, batch_size=BATCH_SIZE,
-                nb_epoch=1, verbose=0, callbacks=[history]
+                X_train, y_train, nb_epoch=1,
+                batch_size=BATCH_SIZE/2, verbose=0, callbacks=[history]
             )
             #print("Model trained!\n")
             loss_log.append(history.losses)

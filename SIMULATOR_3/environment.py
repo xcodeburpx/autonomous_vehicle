@@ -26,7 +26,7 @@ UNIT_R = 20
 DRAW_START = UNIT_R+10
 DRAW_STOP = 130
 COLL_THRESH = 0
-BASE_REWARD = -240
+BASE_REWARD = -100
 
 flags = pygame.DOUBLEBUF
 #Start pygame
@@ -152,7 +152,7 @@ class Env:
         self.space.add(self.enemy_body, self.enemy_shape)
 
     def move_enemy(self):
-        self.enemy_speed = np.random.randint(50, 200)
+        self.enemy_speed = np.random.randint(50, 100)
         self.enemy_body.angle -= np.random.randint(-1, 2)/2
         self.enemy_direction = Vec2d(1,0).rotated(self.enemy_body.angle)
         self.enemy_body.velocity = self.enemy_speed * self.enemy_direction
@@ -255,9 +255,9 @@ class Env:
             if action == 0:
                 reward = BASE_REWARD + int(np.sum(data))
             if action == 1:
-                reward = BASE_REWARD + int(np.sum(data))
+                reward = BASE_REWARD + int(np.sum(data)/3)
             if action == 2 or action == 3:
-                reward = BASE_REWARD + int(np.sum(data))
+                reward = BASE_REWARD + int(np.sum(data)/2)
 
         return reward
 
