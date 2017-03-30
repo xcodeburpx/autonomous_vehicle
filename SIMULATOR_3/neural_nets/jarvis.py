@@ -18,9 +18,9 @@ def Jarvis():
     model.add(Dropout(0.2))
     model.add(LSTM(32, init='uniform',activation = 'tanh'))
     model.add(Dropout(0.2))
-    model.add(Dense(nb_classes, init='normal', activation='sigmoid'))
+    model.add(Dense(nb_classes, init='normal', activation='linear'))
 
-    model.compile(loss = 'mse', optimizer='rmsprop', metrics=['accuracy'])
+    model.compile(loss = 'mse', optimizer='rmsprop')
 
     return model
 
