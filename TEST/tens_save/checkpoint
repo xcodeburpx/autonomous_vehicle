@@ -1,0 +1,2 @@
+model_checkpoint_path: "olaf_25000.ckpt"
+all_model_checkpoint_paths: "olaf_25000.ckpt"
