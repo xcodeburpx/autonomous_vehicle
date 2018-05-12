@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models_mldrive/DuelingDQN-255000.ckpt"
+all_model_checkpoint_paths: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models_mldrive/DuelingDQN-255000.ckpt"

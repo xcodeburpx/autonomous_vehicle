@@ -1,0 +1,6 @@
+model_checkpoint_path: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models/DuelingDQN-200000.ckpt"
+all_model_checkpoint_paths: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models/DuelingDQN-100000.ckpt"
+all_model_checkpoint_paths: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models/DuelingDQN-125000.ckpt"
+all_model_checkpoint_paths: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models/DuelingDQN-150000.ckpt"
+all_model_checkpoint_paths: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models/DuelingDQN-175000.ckpt"
+all_model_checkpoint_paths: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models/DuelingDQN-200000.ckpt"

@@ -1,0 +1,6 @@
+model_checkpoint_path: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models_mldrive/DoubleDQN-200000.ckpt"
+all_model_checkpoint_paths: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models_mldrive/DoubleDQN-100000.ckpt"
+all_model_checkpoint_paths: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models_mldrive/DoubleDQN-125000.ckpt"
+all_model_checkpoint_paths: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models_mldrive/DoubleDQN-150000.ckpt"
+all_model_checkpoint_paths: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models_mldrive/DoubleDQN-175000.ckpt"
+all_model_checkpoint_paths: "/home/kkinshiryuu/PROJECTS/PYTHON/CAR_COMMUNICATION/SensorEnvironmentCar/models_mldrive/DoubleDQN-200000.ckpt"

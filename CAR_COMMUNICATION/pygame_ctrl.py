@@ -17,13 +17,13 @@ def main():
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if pressed[pygame.K_UP]:
-                         print("pressed UP")
+                         print("pressed UP      ", sep='', end='/r', flush=True)
                     if pressed[pygame.K_DOWN]:
-                         print("pressed DOWN")
+                         print("pressed DOWN    ", sep='', end='/r', flush=True)
                     if pressed[pygame.K_RIGHT]:
-                         print("pressed RIGHT")
+                         print("pressed RIGHT   ", sep='', end='/r', flush=True)
                     if pressed[pygame.K_LEFT]:
-                         print("pressed LEFT")
+                         print("pressed LEFT    ", sep='', end='/r', flush=True)
            
             screen.fill((0,0,0))
             pygame.display.flip()
